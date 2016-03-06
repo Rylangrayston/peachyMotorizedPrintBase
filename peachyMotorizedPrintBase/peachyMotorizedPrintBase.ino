@@ -1,3 +1,50 @@
+class FlagAtFrequency
+{
+  float flagFrequency;
+  unsigned long microSecondsBetweenFlags; 
+  //unsigned long timeOfLastFlag;
+  unsigned long timeOfNextFlag;
+  int timesCalledSinceLastFlag;
+  int timesCalledBetweenFlags;
+  unsigned long totalFlagsSet;
+  unsigned long currentMicroSeconds;
+
+  public:
+  FlagAtFrequency(float frequency, unsigned long microSeconds) 
+  {
+    flagFrequency = frequency;
+    microSecondsBetweenFlags = microSeconds;
+    currentMicroSeconds = micros(); /////////////////////////////////////////////
+    //timeOfLastFlag = currentMicroSeconds;
+    timeOfNextFlag = 0;
+    timesCalledSinceLastFlag = 0;
+    timesCalledBetweenFlags = 0;
+    totalFlagsSet = 0;
+  }
+  
+  boolean flag()
+  {
+    unsigned long currentMicroSeconds = micros();
+    if (currentMicroSeconds >= timeOfNextFlag)
+    {
+      timeOfNextFlag += microSecondsBetweenFlags;
+      timesCalledBetweenFlags = timesCalledSinceLastFlag;
+      timesCalledSinceLastFlag = 0;
+      totalFlagsSet += 1;
+      Serial.println(timeOfNextFlag);
+      
+      return true;
+    }
+    else{return false;}
+      
+  }
+};
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////
 int microSecondsBetweenSteps = 4000;
 unsigned long currentMicros = micros();
 unsigned long timeOfLastStep;
@@ -20,14 +67,19 @@ boolean stepperDirection = true;
 unsigned long stepperCurrentStepPos = 0; 
 unsigned long stepperTargetStepPos = 0;
 
+
+
+
+
+
 void updateStepper(){
-  currentMicros = micros();
-  if (currentMicros - timeOfLastStep >= timeOfNextStep)
-  {
-    timeOfLastStep = currentMicros;
-    timeOfNextStep = timeOfLastStep + microSecondsBetweenSteps;
-    updateStepperCallsPerStep = updateStepperCallsPerStepCount;
-    updateStepperCallsPerStepCount = 0;
+//  currentMicros = micros();
+//  if (currentMicros - timeOfLastStep >= timeOfNextStep)
+//  {
+//    timeOfLastStep = currentMicros;
+//    timeOfNextStep = timeOfLastStep + microSecondsBetweenSteps;
+//    updateStepperCallsPerStep = updateStepperCallsPerStepCount;
+//    updateStepperCallsPerStepCount = 0;
     
   
     if (stepperCurrentStepPos < stepperTargetStepPos)
@@ -37,21 +89,66 @@ void updateStepper(){
       
     }
     
-    if (stepperCurrentStepPos > stepperTargetStepPos)
+    else if (stepperCurrentStepPos > stepperTargetStepPos)
     {
       stepperDirection = UP;
       stepperBusy = true;
       
     }
     
-    if (stepperCurrentStepPos == stepperTargetStepPos)
+    else 
     {
       stepperBusy = false;
     }    
   
   
-  }
-  updateStepperCallsPerStepCount++; 
+//  }
+//  updateStepperCallsPerStepCount++; 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+///// flags ////
+
+FlagAtFrequency stepperMotorFlager(0.0, microSecondsBetweenSteps);
+boolean stepperMotorFlag = false;
+
+FlagAtFrequency lowPriorityFlager(0.0, 1000000);
+boolean lowPriorityFlag = false;
+
+
+
+
+
+void updateHighPriorityFlags()
+{
+  lowPriorityFlag = lowPriorityFlager.flag();
+  stepperMotorFlag = stepperMotorFlager.flag();
+}
+
+void updateLowPriorityFlags()
+{
+  
+}
+
+void doHighPriorityWork()
+{
+  if (stepperMotorFlag){ updateStepper();}
+
+}
+
+void doLowPriorityWork()
+{
+  
 }
 
 void setup()
@@ -62,9 +159,25 @@ void setup()
 
 void loop()
 {
-  
+  updateHighPriorityFlags();
+  doHighPriorityWork();
+
+  if (lowPriorityFlag)
+  {
+    updateLowPriorityFlags();
+    doLowPriorityWork();
+  } 
 }
   
+  
+  
+
+
+
+  
+  
+  
+
   
   
   
