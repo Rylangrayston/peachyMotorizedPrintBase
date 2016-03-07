@@ -14,7 +14,7 @@ class FlagAtFrequency
   {
     flagFrequency = frequency;
     microSecondsBetweenFlags = microSeconds;
-    currentMicroSeconds = micros(); /////////////////////////////////////////////
+    currentMicroSeconds = micros(); 
     //timeOfLastFlag = currentMicroSeconds;
     timeOfNextFlag = 0;
     timesCalledSinceLastFlag = 0;
@@ -38,6 +38,10 @@ class FlagAtFrequency
     else{return false;}
       
   }
+ int callsPerFlag()
+ {
+   return timesCalledBetweenFlags;
+ }
 };
 
 
