@@ -1,6 +1,28 @@
 //#include "Arduino.h"
+boolean runPrint = false;
+
+int dripsPerSecond = 10;
+
+unsigned long  delayPerDrip = 1000000 * 1/dripsPerSecond;
 #include "Flager.h"
 #include "stepper.h"
+
+
+int pulsesPerDrip = 20;
+int dripCount = 0; 
+int dripPin = 9;
+
+float microMetersPerDrip = 10; 
+float microMetersPerStep = 12.7;
+
+unsigned long calculateHeigthFromDrips()
+{
+  float currentHeight = dripCount * microMetersPerDrip;
+  float currentStepPos = currentHeight/microMetersPerStep + stepperHomePos + upperLimitOffset;
+  return currentStepPos; 
+}
+  
+
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -23,6 +45,12 @@ void printStatus()
  
  Serial.print("analog read: ");
  Serial.println(analogRead(A0)); 
+ 
+ Serial.print("drip count: ");
+ Serial.println(dripCount);
+ 
+ 
+
 
 }
 
@@ -88,7 +116,7 @@ Serial.println(inChar);
 inChar = '`';
 }
 if (inChar == 'g'){
-//pause = 0;
+runPrint = true;
 Serial.println(inChar);
 inChar = '`';
 }
@@ -102,6 +130,10 @@ inChar = '`';
 }
 
 
+
+
+
+
 ///// flags ////
 
 FlagAtFrequency stepperMotorFlager(0.0, microSecondsBetweenSteps);
@@ -109,32 +141,53 @@ boolean stepperMotorFlag = false;
 
 FlagAtFrequency lowPriorityFlager(0.0, 200000);
 boolean lowPriorityFlag = false;
-
 boolean lastDirection = false;
 
+FlagAtFrequency dripFlager(0.0, delayPerDrip);
+boolean dripFlag = false;
+
+
+
+void sendDrip()
+{
+
+  for (int i=0; i < pulsesPerDrip; i++)
+  {
+    digitalWrite(dripPin, HIGH); // turn the LED on (HIGH is the voltage level)
+    delay(0); // wait for a second
+    digitalWrite(dripPin, LOW); // turn the LED off by making the voltage LOW
+    delay(1); // wait for a second
+  }
+dripFlag = false;
+dripCount++; 
+
+stepperTargetStepPos = calculateHeigthFromDrips();
+}
 
 
 void updateHighPriorityFlags()
 {
   lowPriorityFlag = lowPriorityFlager.flag();
   stepperMotorFlag = stepperMotorFlager.flag();
+  dripFlag = dripFlager.flag();
 }
 
 void updateLowPriorityFlags()
 {
-  
+    
 }
 
 void doHighPriorityWork()
 {
   if (stepperMotorFlag){ updateStepper();}
   if (getStartHeight) {setStartHeight();}
+  if (dripFlag && runPrint && !stepperBusy) { sendDrip(); } 
 
 }
 
 void doLowPriorityWork()
 {
-    
+   
   
 
   serialEvent();

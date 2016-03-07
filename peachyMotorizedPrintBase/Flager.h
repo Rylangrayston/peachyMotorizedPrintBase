@@ -17,6 +17,7 @@ class FlagAtFrequency
   unsigned long timesCalledBetweenFlags;
   unsigned long totalFlagsSet;
   unsigned long currentMicroSeconds;
+  
 
   public:
   FlagAtFrequency(float frequency, unsigned long microSeconds) 

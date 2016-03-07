@@ -19,6 +19,7 @@
     #define IN3  4
     #define IN4  5
 
+
 int microSecondsBetweenSteps = 800;
 unsigned long currentMicros = micros();
 unsigned long timeOfLastStep;
@@ -42,7 +43,7 @@ unsigned long homePos = stepperCurrentStepPos;
 int Steps = 0;
 int pos = 0;
 boolean startUp = true;
-int moveAwayFromLimitSwitchSteps = 300;
+int moveAwayFromLimitSwitchSteps = 500;
 int setHeightPotFactor = 1;
 int upperLimitOffset = (analogRead(A0) * setHeightPotFactor) + moveAwayFromLimitSwitchSteps;
 
@@ -67,6 +68,7 @@ void resetHomePos()
      
 void findUpperLimit()
 {
+  runPrint = false;
   //Serial.println(digitalRead(12));
   if (digitalRead(12) == HIGH ){
   
@@ -78,6 +80,7 @@ void findUpperLimit()
     setStartHeight();
     stepperTargetStepPos += upperLimitOffset;
     startUp = false;
+    
     //while(true){}
   }
 }
