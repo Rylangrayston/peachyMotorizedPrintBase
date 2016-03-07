@@ -42,6 +42,12 @@ class FlagAtFrequency
  {
    return timesCalledBetweenFlags;
  }
+ 
+ unsigned long totalFlags()
+ {
+   return totalFlagsSet;
+ }
+ 
 };
 
 
