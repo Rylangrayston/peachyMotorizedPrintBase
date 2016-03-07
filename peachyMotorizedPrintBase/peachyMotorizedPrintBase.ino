@@ -6,10 +6,20 @@
 
 void printStatus()
 {
+ Serial.print("current Position: ");
  Serial.println(stepperCurrentStepPos);
+ 
+ Serial.print("target Position: ");
  Serial.println(stepperTargetStepPos);
- Serial.println(stepperCurrentStepPos - stepperTargetStepPos); 
+ 
+ Serial.print("steps left to do: ");
+ Serial.println( stepperCurrentStepPos - stepperTargetStepPos);
+ 
+ Serial.print("startUp state: ");
+ Serial.println(startUp); 
 }
+
+
 
 
 ///// flags ////
@@ -20,7 +30,7 @@ boolean stepperMotorFlag = false;
 FlagAtFrequency lowPriorityFlager(0.0, 200000);
 boolean lowPriorityFlag = false;
 
-
+boolean lastDirection = false;
 
 
 
@@ -44,22 +54,45 @@ void doHighPriorityWork()
 void doLowPriorityWork()
 {
   Serial.println(stepperTargetStepPos);  
-  if (stepperBusy == false){ stepperTargetStepPos +=0;}
+  
+//if (stepperBusy == false )
+//{
+//  
+//  if (lastDirection)
+//{ stepperTargetStepPos -=1000;
+//lastDirection = !lastDirection;
+//}
+//
+//  else 
+//{ stepperTargetStepPos +=1000;
+//lastDirection = !lastDirection;
+//}
+//}
+  
   printStatus();
 }
 
 void setup()
 {
-  Serial.begin(9600);
-  
+  Serial.begin(115200);
+  pinMode(12,INPUT_PULLUP); 
 }
+
+
+
+
 
 void loop()
 {
+  if (startUp) 
+  {
+   findUpperLimit(); 
+  }
+  
   updateHighPriorityFlags();
   doHighPriorityWork();
 
-  if (lowPriorityFlag)
+  if (lowPriorityFlag && !stepperBusy)
   {
     updateLowPriorityFlags();
     doLowPriorityWork();

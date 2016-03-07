@@ -19,7 +19,7 @@
     #define IN3  4
     #define IN4  5
 
-int microSecondsBetweenSteps = 4000;
+int microSecondsBetweenSteps = 800;
 unsigned long currentMicros = micros();
 unsigned long timeOfLastStep;
 unsigned long timeOfNextStep;
@@ -27,6 +27,7 @@ boolean stepperBusy = false;
 int updateStepperCallsPerStepCount = 0;
 int updateStepperCallsPerStep = 0;
 boolean Direction = true;
+
 
 // pins
 #define upperLimitPin 12
@@ -36,11 +37,26 @@ boolean Direction = true;
     
 unsigned long stepperCurrentStepPos = 5000000; 
 unsigned long stepperTargetStepPos = 5000000;
+unsigned long homePos = stepperCurrentStepPos;
 int Steps = 0;
 int pos = 0;
+boolean startUp = true;
 
      
-
+void findUpperLimit()
+{
+  //Serial.println(digitalRead(12));
+  if (digitalRead(12) == HIGH ){
+  
+  if (!stepperBusy) {stepperTargetStepPos -=1;}
+  }
+  else
+  {
+    stepperTargetStepPos += 2000;
+    startUp = false;
+    //while(true){}
+  }
+}
   
   
 //  }
