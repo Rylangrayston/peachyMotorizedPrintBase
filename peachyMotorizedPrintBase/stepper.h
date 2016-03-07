@@ -27,6 +27,7 @@ boolean stepperBusy = false;
 int updateStepperCallsPerStepCount = 0;
 int updateStepperCallsPerStep = 0;
 boolean Direction = true;
+unsigned long resinStartHeight = 3000;
 
 
 // pins
@@ -34,25 +35,48 @@ boolean Direction = true;
 #define DOWN  true
 #define UP  false 
 
-    
+unsigned long stepperHomePos = 5000000;    
 unsigned long stepperCurrentStepPos = 5000000; 
 unsigned long stepperTargetStepPos = 5000000;
 unsigned long homePos = stepperCurrentStepPos;
 int Steps = 0;
 int pos = 0;
 boolean startUp = true;
+int moveAwayFromLimitSwitchSteps = 300;
+int setHeightPotFactor = 1;
+int upperLimitOffset = (analogRead(A0) * setHeightPotFactor) + moveAwayFromLimitSwitchSteps;
 
+boolean getStartHeight = false;
+
+
+
+void setStartHeight()
+{ 
+    int oldUpperLimitOffset = upperLimitOffset;
+    upperLimitOffset = (analogRead(A0) * setHeightPotFactor) + moveAwayFromLimitSwitchSteps;
+    stepperTargetStepPos +=   upperLimitOffset - oldUpperLimitOffset  ;
+}
+     
+ 
+void resetHomePos()
+{
+  stepperHomePos = 5000000;    
+  stepperCurrentStepPos = 5000000; 
+  stepperTargetStepPos = 5000000;  
+}
      
 void findUpperLimit()
 {
   //Serial.println(digitalRead(12));
   if (digitalRead(12) == HIGH ){
   
-  if (!stepperBusy) {stepperTargetStepPos -=1;}
+  if (!stepperBusy) {stepperTargetStepPos -= 1;}
   }
   else
   {
-    stepperTargetStepPos += 2000;
+    resetHomePos();
+    setStartHeight();
+    stepperTargetStepPos += upperLimitOffset;
     startUp = false;
     //while(true){}
   }

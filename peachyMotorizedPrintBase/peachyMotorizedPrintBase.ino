@@ -17,9 +17,89 @@ void printStatus()
  
  Serial.print("startUp state: ");
  Serial.println(startUp); 
+ 
+ Serial.print("upper limit offset: ");
+ Serial.println(upperLimitOffset);
+ 
+ Serial.print("analog read: ");
+ Serial.println(analogRead(A0)); 
+
 }
 
+void backAndForth()
+{
+  
+  //if (stepperBusy == false )
+//{
+//  
+//  if (lastDirection)
+//{ stepperTargetStepPos -=1000;
+//lastDirection = !lastDirection;
+//}
+//
+//  else 
+//{ stepperTargetStepPos +=1000;
+//lastDirection = !lastDirection;
+//}
+//}
 
+}
+
+void serialEvent() {
+while (Serial.available()) {
+// get the new byte:
+char inChar = (char)Serial.read();
+if (inChar == 'd'){
+//dSPIN_Move(FWD, 200.0 * microStepsPerStep);
+Serial.println(inChar);
+inChar = '`';
+}
+if (inChar == 'u'){
+//dSPIN_Move(REV, 10000.0 * microStepsPerStep);
+Serial.println(inChar);
+inChar = '`';
+}
+if (inChar == 't'){
+//sendDrip();
+Serial.println(inChar);
+inChar = '`';
+}
+if (inChar == 'f'){
+//dripDelay -= 100;
+//if (dripDelay < 1){
+//dripDelay = 100;
+//}
+Serial.println(inChar);
+inChar = '`';
+}
+if (inChar == 's'){
+//dripDelay += 100;
+Serial.println(inChar);
+inChar = '`';
+}
+if (inChar == 'r'){
+startUp = true;
+Serial.println(inChar);
+inChar = '`';
+}
+if (inChar == 'p'){
+//pause = 1;
+Serial.println(inChar);
+inChar = '`';
+}
+if (inChar == 'g'){
+//pause = 0;
+Serial.println(inChar);
+inChar = '`';
+}
+if (inChar == 'z'){
+getStartHeight = !getStartHeight;
+Serial.println(inChar);
+inChar = '`';
+//stir();
+}
+}
+}
 
 
 ///// flags ////
@@ -48,27 +128,16 @@ void updateLowPriorityFlags()
 void doHighPriorityWork()
 {
   if (stepperMotorFlag){ updateStepper();}
+  if (getStartHeight) {setStartHeight();}
 
 }
 
 void doLowPriorityWork()
 {
-  Serial.println(stepperTargetStepPos);  
+    
   
-//if (stepperBusy == false )
-//{
-//  
-//  if (lastDirection)
-//{ stepperTargetStepPos -=1000;
-//lastDirection = !lastDirection;
-//}
-//
-//  else 
-//{ stepperTargetStepPos +=1000;
-//lastDirection = !lastDirection;
-//}
-//}
-  
+
+  serialEvent();
   printStatus();
 }
 
