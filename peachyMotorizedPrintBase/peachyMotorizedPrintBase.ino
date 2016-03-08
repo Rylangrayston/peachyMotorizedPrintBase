@@ -1,7 +1,8 @@
 //#include "Arduino.h"
 boolean runPrint = false;
-
+int dripCount = 0; 
 int dripsPerSecond = 10;
+
 
 unsigned long  delayPerDrip = 1000000 * 1/dripsPerSecond;
 #include "Flager.h"
@@ -9,7 +10,7 @@ unsigned long  delayPerDrip = 1000000 * 1/dripsPerSecond;
 
 
 int pulsesPerDrip = 20;
-int dripCount = 0; 
+
 int dripPin = 9;
 
 float microMetersPerDrip = 10; 
@@ -49,7 +50,17 @@ void printStatus()
  Serial.print("drip count: ");
  Serial.println(dripCount);
  
+ Serial.print("drips Per Second");
+ Serial.println(dripsPerSecond);
  
+Serial.println("stuff");
+Serial.println("stuff");
+Serial.println("stuff");
+Serial.println("stuff");
+Serial.println("stuff");
+Serial.println("stuff");
+Serial.println("stuff");
+Serial.println("stuff");
 
 
 }
@@ -164,6 +175,13 @@ dripCount++;
 stepperTargetStepPos = calculateHeigthFromDrips();
 }
 
+void setDripsPerSecond()
+{
+  dripsPerSecond = analogRead(A1)/ 100;
+  delayPerDrip = 1000000 * 1/dripsPerSecond;  
+  FlagAtFrequency dripFlager(0.0, delayPerDrip);
+}
+
 
 void updateHighPriorityFlags()
 {
@@ -218,7 +236,7 @@ void loop()
   {
     updateLowPriorityFlags();
     doLowPriorityWork();
-    
+    setDripsPerSecond();
     lowPriorityFlag = false;
   } 
 }

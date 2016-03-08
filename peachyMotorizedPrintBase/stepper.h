@@ -68,6 +68,7 @@ void resetHomePos()
      
 void findUpperLimit()
 {
+  dripCount = 0;
   runPrint = false;
   //Serial.println(digitalRead(12));
   if (digitalRead(12) == HIGH ){
